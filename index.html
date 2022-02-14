@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			height: 100vh;
+			overflow: hidden;
+		}
+
+		.wrap {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+			font-weight: 700;
+			line-height: 2;
+			color: #294a91;
+			font-size: 16px;
+		}
+
+		.maker {
+			padding: 8px;
+			border: 3px solid #294a91;
+			min-width: 190px;
+		}
+
+		.maker span {
+			position: relative;
+		}
+
+		.maker span:after {
+			content: '';
+			position: absolute;
+			bottom: -2px;
+			left: 0;
+			width: 100%;
+			height: 2px;
+			background-color: #294a91;
+		}
+
+		.small {
+			font-size: 15px;
+		}
+
+		.form {
+			padding-top: 20px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		label {
+			display: flex;
+			flex-direction: column;
+		}
+
+		canvas {
+			border: 5px black solid;
+		}
+
+		#textCanvas {
+			display: none;
+		}
+	</style>
+	<title>Image Maker 1.0</title>
+</head>
+
+<body>
+	<div class="wrap">
+		<div class="maker" id="maker">
+			<div class="maker-top">Вх.№ <span class="small" id="incoming-number">НОМЕР-000-000</span></div>
+			<div class="maker-bottom">«<span id="day">01</span>»&nbsp;<span id="month">января</span>&nbsp;20<span
+					id="year">00</span> г.</div>
+		</div>
+		<form action="#" class="form">
+			<label class="form__label">
+				<span>Введите входящий номер</span>
+				<input type="text" class="form__input" id="incoming-number-input">
+			</label>
+			<label class="form__label">
+				<span>Выберите дату</span>
+				<input type="date" class="form__input" id="date-input">
+			</label>
+		</form>
+		<h1>Картинка</h1>
+		<canvas id='textCanvas'></canvas>
+		<a href="#" class="download-link" download>
+			<img id='image'>
+		</a>
+	</div>
+
+	<script>
+		const incomingInput = document.getElementById('incoming-number-input');
+		const incomingNumber = document.getElementById('incoming-number');
+		const dateInput = document.getElementById('date-input');
+		const day = document.getElementById('day');
+		const month = document.getElementById('month');
+		const year = document.getElementById('year');
+		const maker = document.getElementById('maker');
+		const downloadLink = document.querySelector('.download-link');
+
+		incomingInput.oninput = changeNumber;
+		dateInput.oninput = changeDate;
+
+		function changeNumber(e) {
+			let val = e.target.value;
+			incomingNumber.textContent = val;
+			draw();
+		}
+
+		function changeDate(e) {
+			let inpDay = e.target.value[e.target.value.length - 2] + e.target.value[e.target.value.length - 1];
+			day.textContent = inpDay;
+			let inpMonth = e.target.value[e.target.value.length - 5] + e.target.value[e.target.value.length - 4];
+			month.textContent = monthConvert(inpMonth);
+			let inpYear = e.target.value[2] + e.target.value[3];
+			year.textContent = inpYear;
+			draw();
+		}
+
+		function monthConvert(month) {
+			if (month == '01') return 'января';
+			if (month == '02') return 'февраля';
+			if (month == '03') return 'марта';
+			if (month == '04') return 'апреля';
+			if (month == '05') return 'мая';
+			if (month == '06') return 'июня';
+			if (month == '07') return 'июля';
+			if (month == '08') return 'августа';
+			if (month == '09') return 'сентября';
+			if (month == '10') return 'октября';
+			if (month == '11') return 'ноября';
+			if (month == '12') return 'декабря';
+		}
+
+		const canvas = document.getElementById('textCanvas');
+		let ctx = document.getElementById('textCanvas').getContext('2d');
+		let imageElem = document.getElementById('image');
+
+		function draw() {
+			let pngWidth = maker.getBoundingClientRect().width;
+			let pngHeigth = maker.getBoundingClientRect().height;
+			canvas.width = pngWidth + 10;
+			canvas.height = pngHeigth + 2;
+
+			ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+			ctx.strokeStyle = '#294a91';
+			ctx.lineWidth = 3;
+
+			//Отрисовка прямоугольника
+			ctx.beginPath();
+			ctx.moveTo(2, 2);
+			ctx.lineTo(pngWidth + 8, 2);
+			ctx.lineTo(pngWidth + 8, pngHeigth);
+			ctx.lineTo(2, pngHeigth);
+			ctx.lineTo(2, 1);
+			ctx.stroke();
+			ctx.closePath();
+
+			ctx.font = 'bold 16px Arial';
+			ctx.fillStyle = '#294a91';
+			ctx.font = 'bold 15px Arial';
+			ctx.fillText('Вх.№ ', 15, 30);
+			ctx.lineWidth = 2;
+			if (incomingInput.value == '') {
+				ctx.fillText('______________', 62, 32);
+			} else {
+				ctx.fillText(incomingInput.value, 62, 30);
+				ctx.beginPath();
+				ctx.moveTo(60, 35);
+				ctx.lineTo(60 + incomingNumber.getBoundingClientRect().width + 2, 35);
+				ctx.stroke();
+				ctx.closePath();
+			}
+
+			ctx.font = 'bold 16px Arial';
+			ctx.fillText(`«${day.textContent}»`, 15, 65);
+			ctx.beginPath();
+			ctx.moveTo(24, 70);
+			ctx.lineTo(42, 70);
+			ctx.stroke();
+			ctx.closePath();
+			ctx.fillText(month.textContent, 55, 65);
+			ctx.beginPath();
+			ctx.moveTo(55, 70);
+			ctx.lineTo(55 + month.getBoundingClientRect().width, 70);
+			ctx.stroke();
+			ctx.closePath();
+			ctx.fillText(`20${year.textContent} г.`, 132, 65);
+			ctx.beginPath();
+			ctx.moveTo(149, 70);
+			ctx.lineTo(168, 70);
+			ctx.stroke();
+			ctx.closePath();
+
+			imageElem.src = ctx.canvas.toDataURL();
+			downloadLink.href = imageElem.src;
+			downloadLink.download = `Штамп ${incomingInput.value}`;
+			console.log();
+		}
+	</script>
+</body>
+
+</html>
